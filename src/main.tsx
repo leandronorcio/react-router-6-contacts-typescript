@@ -23,24 +23,29 @@ const router = createBrowserRouter([
     loader: rootLoader,
     action: rootAction,
     children: [
-      { index: true, element: <Index /> },
+      // This is a pathless route
       {
-        path: 'contacts/:contactId',
-        element: <Contact />,
-        loader: contactLoader,
-        action: contactAction,
-      },
-      {
-        path: 'contacts/:contactId/edit',
-        element: <EditContact />,
-        loader: contactLoader,
-        action: editAction,
-        errorElement: <p>Whoops! There was an error editing this contact.</p>,
-      },
-      {
-        path: 'contacts/:contactId/destroy',
-        action: destroyAction,
-        errorElement: <p>Whoops! There was an error deleting this contact.</p>,
+        // This `errorElement` will be common to all of its children routes
+        errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <Index /> },
+          {
+            path: 'contacts/:contactId',
+            element: <Contact />,
+            loader: contactLoader,
+            action: contactAction,
+          },
+          {
+            path: 'contacts/:contactId/edit',
+            element: <EditContact />,
+            loader: contactLoader,
+            action: editAction,
+          },
+          {
+            path: 'contacts/:contactId/destroy',
+            action: destroyAction,
+          },
+        ],
       },
     ],
   },
