@@ -27,6 +27,10 @@ export default function Root() {
   const submit = useSubmit();
   const searchInput = useRef<HTMLInputElement>(null);
 
+  const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has('q');
+
   useEffect(() => {
     if (searchInput.current) searchInput.current.value = q;
   }, [q]);
@@ -40,13 +44,14 @@ export default function Root() {
             <input
               id="q"
               ref={searchInput}
+              className={searching ? 'loading' : ''}
               aria-label="Search contacts"
               placeholder="Search"
               type="search"
               name="q"
               onChange={(event) => submit(event.currentTarget.form)}
             />
-            <div id="search-spinner" aria-hidden hidden={true} />
+            <div id="search-spinner" aria-hidden hidden={!searching} />
             <div className="sr-only" aria-live="polite"></div>
           </Form>
           <Form method="post">
