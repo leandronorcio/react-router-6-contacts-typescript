@@ -7,6 +7,7 @@ import {
   useNavigation,
 } from 'react-router-dom';
 import { createContact, getContacts } from '../contacts';
+import { useEffect, useRef } from 'react';
 
 export async function action() {
   const contact = await createContact();
@@ -16,12 +17,17 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get('q');
   const contacts = await getContacts(q);
-  return { contacts };
+  return { contacts, q };
 }
 
 export default function Root() {
-  const { contacts } = useLoaderData();
+  const { contacts, q } = useLoaderData();
   const navigation = useNavigation();
+  const searchInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchInput.current) searchInput.current.value = q;
+  }, [q]);
 
   return (
     <>
@@ -31,6 +37,7 @@ export default function Root() {
           <Form id="search-form" role="search">
             <input
               id="q"
+              ref={searchInput}
               aria-label="Search contacts"
               placeholder="Search"
               type="search"
