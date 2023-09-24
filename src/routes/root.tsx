@@ -14,15 +14,15 @@ export async function action() {
   const contact = await createContact();
   return redirect(`/contacts/${contact.id}/edit`);
 }
-export async function loader({ request }) {
+export async function loader({ request }: { request: Request }) {
   const url = new URL(request.url);
   const q = url.searchParams.get('q');
-  const contacts = await getContacts(q);
+  const contacts = await getContacts(q || undefined);
   return { contacts, q };
 }
 
 export default function Root() {
-  const { contacts, q } = useLoaderData();
+  const { contacts, q } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const navigation = useNavigation();
   const submit = useSubmit();
   const searchInput = useRef<HTMLInputElement>(null);
@@ -32,7 +32,7 @@ export default function Root() {
     new URLSearchParams(navigation.location.search).has('q');
 
   useEffect(() => {
-    if (searchInput.current) searchInput.current.value = q;
+    if (searchInput.current && q) searchInput.current.value = q;
   }, [q]);
 
   return (

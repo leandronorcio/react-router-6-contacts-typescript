@@ -1,7 +1,22 @@
-import { Form, useLoaderData, redirect, useNavigate } from 'react-router-dom';
+import {
+  Form,
+  useLoaderData,
+  redirect,
+  useNavigate,
+  ActionFunctionArgs,
+  Params,
+  ParamParseKey,
+} from 'react-router-dom';
 import { updateContact } from '../contacts';
+import { Paths } from '../router';
+import { loader as contactLoader } from './contact';
 
-export async function action({ request, params }) {
+interface EditContactArgs extends ActionFunctionArgs {
+  params: Params<ParamParseKey<typeof Paths.contactEdit>>;
+}
+
+export async function action({ request, params }: EditContactArgs) {
+  if (!params.contactId) throw Error('Please provide a contact id.');
   const formData = await request.formData();
   const updates = Object.fromEntries(formData);
   await updateContact(params.contactId, updates);
@@ -9,7 +24,9 @@ export async function action({ request, params }) {
 }
 
 export default function EditContact() {
-  const { contact } = useLoaderData();
+  const { contact } = useLoaderData() as Awaited<
+    ReturnType<typeof contactLoader>
+  >;
   const navigate = useNavigate();
 
   return (

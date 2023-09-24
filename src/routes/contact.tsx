@@ -1,7 +1,19 @@
-import { Form, useFetcher, useLoaderData } from 'react-router-dom';
+import {
+  ActionFunctionArgs,
+  Form,
+  ParamParseKey,
+  Params,
+  useFetcher,
+  useLoaderData,
+} from 'react-router-dom';
 import { getContact, updateContact } from '../contacts';
+import { Paths } from '../router';
 
-export async function loader({ params }) {
+interface ContactArgs extends ActionFunctionArgs {
+  params: Params<ParamParseKey<typeof Paths.contactDetail>>;
+}
+
+export async function loader({ params }: ContactArgs) {
   const contact = await getContact(params.contactId);
   if (!contact) {
     throw new Response('', {
@@ -13,15 +25,16 @@ export async function loader({ params }) {
 }
 
 // For favoriting a contact
-export async function action({ request, params }) {
+export async function action({ request, params }: ContactArgs) {
   let formData = await request.formData();
+  if (!params.contactId) return;
   return updateContact(params.contactId, {
     favorite: formData.get('favorite') === 'true',
   });
 }
 
 export default function Contact() {
-  const { contact } = useLoaderData();
+  const { contact } = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   return (
     <div id="contact">
@@ -72,7 +85,7 @@ export default function Contact() {
   );
 }
 
-function Favorite({ contact }) {
+function Favorite({ contact }: { contact: Contact }) {
   const fetcher = useFetcher();
 
   let favorite = contact.favorite;
